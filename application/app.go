@@ -15,10 +15,13 @@ type App struct {
 }
 
 func NewApp() *App {
-	return &App{
-		router: routes(),
+	app := &App{
 		rdb:    redis.NewClient(&redis.Options{}),
 	}
+
+	app.routes()
+
+	return app
 }
 
 func (a *App) Start(ctx context.Context) error {

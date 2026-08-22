@@ -80,7 +80,7 @@ func (r *RedisRepo) DeleteOrderById(ctx context.Context, orderId uint64) error {
 		return fmt.Errorf("failed to delete order from redis: %w", err)
 	}
 
-	if err := tx.S(ctx, "orders", key).Err(); err != nil {
+	if err := tx.SRem(ctx, "orders", key).Err(); err != nil {
 		tx.Discard()
 		return fmt.Errorf("failed to remove order key from orders set: %w", err)
 	}
@@ -96,7 +96,7 @@ func (r *RedisRepo) UpdateOrder(ctx context.Context, order model.Order) error {
 		return fmt.Errorf("failed to marshal order: %w", err)
 	}
 
-	err = r.Client.SetXX(ctx, string(data), 0).Err()
+	err = r.Client.SetXX(ctx, "orders", string(data), 0).Err()
 
 	if errors.Is(err, redis.Nil) {
 		return ErrNotExist
@@ -112,7 +112,7 @@ func (r *RedisRepo) UpdateOrder(ctx context.Context, order model.Order) error {
 type FindAllPage struct {
 	Size   uint64
 	Offset uint64
-}
+} 
 
 type FindResult struct {
 	Orders []model.Order
